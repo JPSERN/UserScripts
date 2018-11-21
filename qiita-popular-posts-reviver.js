@@ -8,7 +8,7 @@
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
 // ==/UserScript==
 
-(function($){
+(($) => {
 
   /**
    * 人気の投稿データを非同期で取得する
