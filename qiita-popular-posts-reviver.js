@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name         Popular Posts Reviver for Qiita
 // @namespace    PPR
-// @version      0.1
+// @version      0.2
 // @description  Qiita の投稿の右カラムに「人気の投稿」を表示させるスクリプト。Chromeのみ使用可能。
 // @author       tommy_aka_jps
 // @match        https://qiita.com/*/items/*
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
 // ==/UserScript==
 
-(($) => {
+(() => {
 
   /**
    * 人気の投稿データを非同期で取得する
@@ -20,14 +19,19 @@
       return Promise.resolve(cache);
     }
 
-    return $.ajax({
-      type: "get",
-      url: "//qiita.com/" + userId,
-      dataType: "html"
-    }).then(html => {
-      const data = createObjects(html);
+    return fetch("//qiita.com/" + userId, {
+      method: "get"
+    }).then((response) => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        console.log(response.statusText);
+      }
+    }).catch((response) => {
+      console.log(response);
+    }).then((text) => {
+      const data = createObjects(text);
       setCache(userId, data);
-
       return data;
     });
   };
@@ -54,7 +58,7 @@
       return;
     }
 
-    if(cache.cdate != getCreateDate()) {
+    if(cache.cdate != generateCreateDate()) {
       window.localStorage.removeItem(ckey);
       return;
     }
@@ -70,7 +74,7 @@
   const setCache = (userId, posts) => {
     const json = JSON.stringify({
       posts: posts,
-      cdate: getCreateDate()
+      cdate: generateCreateDate()
     });
 
     const ckey = cacheKeyName(userId);
@@ -78,16 +82,18 @@
   };
 
   /**
-   * yyyyMMdd の文字列を返す
+   * yyyyMMdd の文字列を生成する
    * @return {String}
    **/
-  const getCreateDate = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-
-    return year + month + day;
+  const generateCreateDate = () => {
+    if(!generateCreateDate.cache) {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const day = ("0" + date.getDate()).slice(-2);
+      generateCreateDate.cache = year + month + day;
+    }
+    return generateCreateDate.cache;
   };
 
   /**
@@ -96,47 +102,65 @@
    * @return {Object[]}
    **/
   const createObjects = (html) => {
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(html, "text/html");
     const result = [];
-    const $items = $(html).find(".userPopularItems_item");
-    $items.each((_index, item) => {
-      const $titleElement = $(item).find(".userPopularItems_title");
+    const titleElements = dom.getElementsByClassName("userPopularItems_title");
+
+    Array.prototype.forEach.call(titleElements, (titleElement) => {
       result.push({
-        title: $titleElement.text(),
-        url: $titleElement.attr("href")
+        title: titleElement.text,
+        url: titleElement.href
       });
     });
+
     return result;
   };
 
   /**
    * ページに挿入する人気の投稿のHTMLを生成する
    * @param {Object[]} posts
-   * @return {jQuery}
+   * @return {Element}
    **/
   const createHtml = (posts) => {
-    const $ul = $("<ul>", {style: "list-style-type: disc; margin-left: 20px"})
+    const ul = document.createElement("ul");
+    ul.style.listStyleType = "disc";
+    ul.style.marginLeft = "20px";
+
     posts.forEach((post) => {
-      $ul.append(
-        $("<li>", {style: "margin-bottom: 6px;font-size: 12px"}).append(
-          $("<a>", {href: post.url, text: post.title})
-        )
-      );
+      const a = document.createElement("a");
+      a.href = post.url;
+      a.text = post.title;
+
+      const li = document.createElement("li");
+      li.style.marginBottom = "6px";
+      li.style.fontSize = "12px";
+      li.appendChild(a);
+      ul.appendChild(li);
     });
 
-    return $("<div>", {style: "margin-bottom: 20px"})
-      .append($("<h5>", {text: "人気の投稿", style: "font-weight: 700; margin-bottom: 10px"}))
-      .append($ul);
+    const h5 = document.createElement("h5");
+    h5.textContent = "人気の投稿";
+    h5.style.fontWeight = "700";
+    h5.style.marginBottom = "10px";
+
+    const div = document.createElement("div");
+    div.style.marginBottom = "20px";
+    div.appendChild(h5);
+    div.appendChild(ul);
+
+    return div;
   };
 
-  // ---- 
+  // ----
   // Main
-  // ---- 
-  $(function(){
-    const userId = location.pathname.split('/')[1];
-    fetchPopularPosts(userId).then((posts) => {
-      if(!posts) return;
+  // ----
+  const userId = location.pathname.split('/')[1];
+  fetchPopularPosts(userId).then((posts) => {
+    if(!posts) return;
 
-      createHtml(posts).prependTo(".p-items_toc");
-    });
+    const html = createHtml(posts);
+    const targetDiv = document.getElementsByClassName("p-items_toc")[0];
+    targetDiv.insertBefore(html, targetDiv.firstChild);
   });
-})(jQuery);
+})();
