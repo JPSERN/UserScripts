@@ -58,11 +58,6 @@
       return;
     }
 
-    if(cache.cdate != generateCreateDate()) {
-      window.localStorage.removeItem(ckey);
-      return;
-    }
-
     return cache.posts;
   };
 
@@ -72,13 +67,10 @@
    * @param {Object[]} posts
    **/
   const setCache = (userId, posts) => {
-    const json = JSON.stringify({
-      posts: posts,
-      cdate: generateCreateDate()
-    });
-
-    const ckey = cacheKeyName(userId);
-    window.localStorage.setItem(ckey, json);
+    window.localStorage.setItem(
+      cacheKeyName(userId),
+      JSON.stringify({ posts: posts })
+    );
   };
 
   /**
