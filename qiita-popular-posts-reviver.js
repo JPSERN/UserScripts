@@ -58,11 +58,6 @@
       return;
     }
 
-    if(cache.cdate != generateCreateDate()) {
-      window.localStorage.removeItem(ckey);
-      return;
-    }
-
     return cache.posts;
   };
 
@@ -72,13 +67,10 @@
    * @param {Object[]} posts
    **/
   const setCache = (userId, posts) => {
-    const json = JSON.stringify({
-      posts: posts,
-      cdate: generateCreateDate()
-    });
-
-    const ckey = cacheKeyName(userId);
-    window.localStorage.setItem(ckey, json);
+    window.localStorage.setItem(
+      cacheKeyName(userId),
+      JSON.stringify({ posts: posts })
+    );
   };
 
   /**
@@ -152,9 +144,31 @@
     return div;
   };
 
+  /**
+   * 必要に応じてローカルストレージの掃除を行う
+   * 基本当日以外のキャッシュが存在した場合に限り clear が呼ばれる
+   * それ以外は何もしない
+   **/
+  const clearStorageIfNeeds = () => {
+    const keyName = "cache_cdate";
+    const cacheCreateDate = window.localStorage.getItem(keyName);
+
+    if(!cacheCreateDate) {
+      window.localStorage.setItem(keyName, generateCreateDate());
+      return;
+    }
+
+    if(cacheCreateDate != generateCreateDate()) {
+      window.localStorage.clear();
+      window.localStorage.setItem(keyName, generateCreateDate());
+      return;
+    }
+  };
+
   // ----
   // Main
   // ----
+  clearStorageIfNeeds();
   const userId = location.pathname.split('/')[1];
   fetchPopularPosts(userId).then((posts) => {
     if(!posts) return;
