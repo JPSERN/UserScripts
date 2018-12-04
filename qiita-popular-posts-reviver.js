@@ -168,13 +168,15 @@
   // ----
   // Main
   // ----
-  clearStorageIfNeeds();
-  const userId = location.pathname.split('/')[1];
-  fetchPopularPosts(userId).then((posts) => {
-    if(!posts) return;
+  window.onload = () => {
+    clearStorageIfNeeds();
+    const userId = location.pathname.split('/')[1];
+    fetchPopularPosts(userId).then((posts) => {
+      if(!posts) return;
 
-    const html = createHtml(posts);
-    const targetDiv = document.getElementsByClassName("p-items_toc")[0];
-    targetDiv.insertBefore(html, targetDiv.firstChild);
-  });
+      const html = createHtml(posts);
+      const targetDiv = document.getElementsByClassName("p-items_toc")[0];
+      targetDiv.insertBefore(html, targetDiv.firstChild);
+    });
+  };
 })();
