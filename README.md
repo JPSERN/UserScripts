@@ -9,4 +9,4 @@ https://tampermonkey.net/faq.php#gen
 - [Google Chrome](https://www.google.com/chrome/)
 
 ## LICENSE
-https://github.com/JpsernWorks/UserScripts/blob/master/LICENSE
+[MIT](https://github.com/Jpsern/UserScripts/blob/master/LICENSE)
