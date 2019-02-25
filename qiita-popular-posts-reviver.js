@@ -96,17 +96,14 @@
   const createObjects = (html) => {
     const parser = new DOMParser();
     const dom = parser.parseFromString(html, "text/html");
-    const result = [];
     const titleElements = dom.getElementsByClassName("userPopularItems_title");
 
-    Array.prototype.forEach.call(titleElements, (titleElement) => {
-      result.push({
+    return Array.prototype.map.call(titleElements, (titleElement) => {
+      return {
         title: titleElement.text,
         url: titleElement.href
-      });
+      }
     });
-
-    return result;
   };
 
   /**
