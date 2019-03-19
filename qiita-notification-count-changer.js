@@ -46,7 +46,6 @@
   }
 
   const countUp = () => {
-    console.log("up");
     notifyElem.classList.add("st-Header_notifications-active");
     notifyElem.innerText = parseInt(notifyElem.innerText, 10) + 1;
   }
