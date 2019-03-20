@@ -14,12 +14,12 @@
     //create count-up button
     const countUpButton = createButton();
     countUpButton.textContent = "+";
-    countUpButton.onclick = () => countUp();
+    countUpButton.addEventListener("click", countUp);
 
     //create reset button
     const resetButton = createButton();
     resetButton.textContent = "C";
-    resetButton.onclick = () => reset();
+    resetButton.addEventListener("click", reset)
 
     //set buttons
     const targetWrapper = document.getElementsByClassName("st-Header_end")[0];
