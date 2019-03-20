@@ -22,7 +22,7 @@
     resetButton.addEventListener("click", reset)
 
     //set buttons
-    const targetWrapper = document.getElementsByClassName("st-Header_end")[0];
+    const targetWrapper = document.querySelector(".st-Header_end");
     targetWrapper.insertBefore(resetButton, notifyElem);
     targetWrapper.insertBefore(countUpButton, notifyElem);
   }
