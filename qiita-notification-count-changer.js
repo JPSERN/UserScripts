@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qiita-notification-count-changer
 // @namespace    None
-// @version      0.1
+// @version      0.2
 // @description  通知カウント欄の表示を変える
 // @author       Jpsern
 // @match        https://qiita.com/*
@@ -22,9 +22,10 @@
     resetButton.addEventListener("click", reset)
 
     //set buttons
-    const targetWrapper = document.querySelector(".st-Header_end");
+    const targetWrapper = notifyElem.parentNode;
     targetWrapper.insertBefore(resetButton, notifyElem);
     targetWrapper.insertBefore(countUpButton, notifyElem);
+    targetWrapper.style.display = "flex";
   }
 
   const createButton = () => {
